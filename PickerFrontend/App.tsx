@@ -8,7 +8,7 @@
 import React, { useState, useEffect } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Button } from 'react-native'; // 这里用到什么添什么
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Button } from 'react-native'; 
 
 type State = {
   name: string;
@@ -34,7 +34,7 @@ const useFetchStates = (url: string) => {
 };
 
 const App = () => {
-  const states = useFetchStates('http://192.168.1.160:3001/states');
+  const states = useFetchStates('http://192.168.1.160:3006/states');
   const [selectedState, setSelectedState] = useState<string>("state");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
