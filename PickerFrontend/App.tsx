@@ -5,113 +5,113 @@
  * @format
  */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Picker } from '@react-native-picker/picker';
+import axios from 'axios';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Button } from 'react-native'; // 这里用到什么添什么
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+type State = {
+  name: string;
+};
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+const useFetchStates = (url: string) => {
+  const [states, setStates] = useState<State[]>([]);
+  const fetchStates = () => {
+    axios.get(url)
+      .then(response => {
+        console.log('Data fetched:', response.data);
+        setStates(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+  useEffect(() => {
+    fetchStates();
+  }, [url]);
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+  return states;
+};
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const App = () => {
+  const states = useFetchStates('http://192.168.1.160:3001/states');
+  const [selectedState, setSelectedState] = useState<string>("state");
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const handlePickerChange = (itemValue: string) => {
+    setSelectedState(itemValue);
+    setModalVisible(false);
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+    <View style={styles.container}>
+      <Text style={styles.label}>State picker challenge</Text>
+      <TouchableOpacity style={styles.selectBox} onPress={() => setModalVisible(true)}>
+        <Text style={styles.selectedText}>{selectedState}</Text>
+      </TouchableOpacity>
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={selectedState}
+              style={styles.picker}
+              onValueChange={(itemValue) => handlePickerChange(itemValue)} >
+              {states.map((state, index) => (
+                <Picker.Item key={index} label={state.name} value={state.name} />
+              ))}
+            </Picker>
+            <Button title="Done" onPress={() => setModalVisible(false)} />
+          </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </Modal>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    paddingTop: 60,
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5'
   },
-  sectionTitle: {
+  label: {
     fontSize: 24,
-    fontWeight: '600',
+    fontFamily: 'Arial',
+    marginBottom: 16,
+    textAlign: 'center'
   },
-  sectionDescription: {
-    marginTop: 8,
+  selectBox: {
+    height: 50,
+    width: '80%',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ffffff'
+  },
+  selectedText: {
     fontSize: 18,
-    fontWeight: '400',
   },
-  highlight: {
-    fontWeight: '700',
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
+  },
+  pickerContainer: {
+    backgroundColor: '#ffffff',
+    padding: 16,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  picker: {
+    height: 250,
+    width: '100%',
   },
 });
 
