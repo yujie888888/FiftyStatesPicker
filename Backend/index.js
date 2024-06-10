@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const mysql = require('mysql2');
-const port = 3000;
+const port = 3010;
 
 //Create mysql pool
 const pool = mysql.createPool({
@@ -32,5 +32,5 @@ app.on('error',(err) => {
 
 //Start Server
 app.listen(port,()=>{
-	console.log(`Server running at http://localhost:${port}/states`);
+	console.log(`Server running at http://192.168.1.160:${port}/states`);
 });
