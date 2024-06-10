@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const port = 3000;
 
 //Create mysql pool
@@ -16,7 +16,11 @@ const pool = mysql.createPool({
 
 //Get request
 app.get('/states',(req,res)=>{
-	pool.query('SELECT name FROM states',(err,results)=>{
+	pool.query('SELECT name FROM states;',(err,results)=>{
+		if(err){
+			console.error('Database query error:',err);
+			res.status(500).json({error:'Database query error'});
+		}
 		res.json(results);
 	})
 });
@@ -28,5 +32,5 @@ app.on('error',(err) => {
 
 //Start Server
 app.listen(port,()=>{
-	console.log('Server running at http://localhost:${port}/states');
+	console.log(`Server running at http://localhost:${port}/states`);
 });
